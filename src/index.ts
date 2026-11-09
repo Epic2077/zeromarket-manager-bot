@@ -4,17 +4,29 @@ import { registerOwnerMenuCommand } from "./commands/ownerMenu.js";
 import { registerStartCommand } from "./commands/start.js";
 import { registerTaxonomyMenuCommand } from "./commands/taxonomy.js";
 
+console.log("[startup] Registering bot commands...");
 registerStartCommand(bot);
 registerLinkCommand(bot);
 registerOwnerMenuCommand(bot);
 registerTaxonomyMenuCommand(bot);
+console.log("[startup] Bot commands registered.");
 
 bot.catch((error) => {
-  console.error("Unhandled bot error:", error.error);
+  console.error("[runtime] Unhandled bot error:", error.error);
 });
 
-bot.start({
-  onStart: (botInfo) => {
-    console.log(`Khodroju manager bot started as @${botInfo.username}`);
-  },
-});
+console.log("[startup] Starting Telegram polling...");
+
+try {
+  await bot.start({
+    onStart: (botInfo) => {
+      console.log(
+        `[running] Khodroju manager bot started as @${botInfo.username}`,
+      );
+      console.log("[running] Waiting for Telegram updates...");
+    },
+  });
+} catch (error) {
+  console.error("[startup] Failed to start Telegram polling:", error);
+  process.exitCode = 1;
+}
