@@ -16,11 +16,11 @@ export function registerStartCommand(bot: Bot) {
 
       if (!session) {
         await ctx.reply(
-          "Welcome to Khodroju Management!\n\n" +
-            "Your Telegram account isn't linked yet.\n\n" +
-            "Log in to your Khodroju account, generate a connection code, " +
-            "and send it here using:\n\n" +
-            "/link YOUR_CODE",
+          "به مدیریت خودروجو خوش آمدید!\n\n" +
+            "حساب تلگرام شما هنوز متصل نشده است.\n\n" +
+            "وارد حساب خودروجوی خود شوید، یک کد اتصال دریافت کنید " +
+            "و آن را با دستور زیر ارسال کنید:\n\n" +
+            "/link کد_اتصال",
           { reply_markup: websiteButton() },
         );
 
@@ -30,15 +30,15 @@ export function registerStartCommand(bot: Bot) {
       const roleMessage =
         session.role === "USER"
           ? ""
-          : `\n\nRole: ${session.role.toLowerCase()}`;
-      await ctx.reply(`Welcome back to Khodroju Management!${roleMessage}`, {
+          : `\n\nنقش: ${session.role === "OWNER" ? "مالک" : "مدیر"}`;
+      await ctx.reply(`به مدیریت خودروجو خوش آمدید!${roleMessage}`, {
         reply_markup:
           mainMenuKeyboard(session.role),
       });
     } catch (error) {
       console.error("Telegram connection check failed:", error);
       await ctx.reply(
-        "I couldn't check your account right now. Please try again later.",
+        "در حال حاضر امکان بررسی حساب شما وجود ندارد. لطفاً بعداً دوباره تلاش کنید.",
         { reply_markup: websiteButton() },
       );
     }

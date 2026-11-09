@@ -32,11 +32,11 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(ownerMenuCallbacks.taxonomy, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
-    await ctx.reply("Choose a taxonomy to manage:", {
+    await ctx.reply("یک دسته‌بندی را برای مدیریت انتخاب کنید:", {
       reply_markup: taxonomyCategoryKeyboard(),
     });
   });
@@ -44,14 +44,14 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(/^taxonomy:category:(BRAND|FAMILY|MODEL)$/, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
     const category = ctx.match[1] as TelegramTaxonomyCategory;
     if (category === "BRAND") {
       const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
-      await ctx.reply(formatOptions("Existing brands", brands.map((brand) => brand.value)), {
+      await ctx.reply(formatOptions("برندهای موجود", brands.map((brand) => brand.value)), {
         reply_markup: addKeyboard("BRAND"),
       });
       return;
@@ -59,7 +59,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
 
     const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
     if (!brands.length) {
-      await ctx.reply("Add at least one brand first.", {
+      await ctx.reply("ابتدا حداقل یک برند اضافه کنید.", {
         reply_markup: taxonomyCategoryKeyboard(),
       });
       return;
@@ -67,8 +67,8 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
 
     await ctx.reply(
       category === "FAMILY"
-        ? "Existing families are grouped by brand. Choose a brand to view them:"
-        : "Existing models are grouped by brand and family. Choose a brand:",
+        ? "خانواده‌های موجود بر اساس برند گروه‌بندی شده‌اند. برای مشاهده، یک برند را انتخاب کنید:"
+        : "مدل‌های موجود بر اساس برند و خانواده گروه‌بندی شده‌اند. یک برند را انتخاب کنید:",
       { reply_markup: optionKeyboard(brands, category === "FAMILY" ? "family" : "modelBrand") },
     );
   });
@@ -76,7 +76,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(/^taxonomy:family:(.+)$/, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
@@ -84,13 +84,13 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
     const brand = brands.find((option) => option.id === parentId)?.value;
     if (!brand) {
-      await ctx.reply("That brand is no longer available.");
+      await ctx.reply("این برند دیگر در دسترس نیست.");
       return;
     }
 
     const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", { brand });
     await ctx.reply(
-      formatOptions(`Existing families for ${brand}`, families.map((family) => family.value)),
+      formatOptions(`خانواده‌های موجود برای ${brand}`, families.map((family) => family.value)),
       { reply_markup: addKeyboard("FAMILY", parentId) },
     );
   });
@@ -98,7 +98,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(/^taxonomy:model:brand:(.+)$/, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
@@ -106,19 +106,19 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
     const brand = brands.find((option) => option.id === brandId)?.value;
     if (!brand) {
-      await ctx.reply("That brand is no longer available.");
+      await ctx.reply("این برند دیگر در دسترس نیست.");
       return;
     }
 
     const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", { brand });
     if (!families.length) {
-      await ctx.reply(`Add a family under ${brand} first.`, {
+      await ctx.reply(`ابتدا یک خانواده برای ${brand} اضافه کنید.`, {
         reply_markup: taxonomyCategoryKeyboard(),
       });
       return;
     }
 
-    await ctx.reply(`Existing families for ${brand}. Choose one to view its models:`, {
+    await ctx.reply(`خانواده‌های موجود برای ${brand}. برای مشاهده مدل‌ها یکی را انتخاب کنید:`, {
       reply_markup: optionKeyboard(families, "modelFamily"),
     });
   });
@@ -126,7 +126,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(/^taxonomy:model:family:(.+)$/, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
@@ -135,7 +135,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     const family = families.find((option) => option.id === familyId);
     const brand = (family?.metadata?.brand as string | undefined) ?? "";
     if (!family || !brand) {
-      await ctx.reply("That family is no longer available.");
+      await ctx.reply("این خانواده دیگر در دسترس نیست.");
       return;
     }
 
@@ -145,7 +145,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     });
     await ctx.reply(
       formatOptions(
-        `Existing models for ${brand} ${family.value}`,
+        `مدل‌های موجود برای ${brand} ${family.value}`,
         models.map((model) => model.value),
       ),
       { reply_markup: addKeyboard("MODEL", familyId) },
@@ -155,7 +155,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
   bot.callbackQuery(/^taxonomy:add:(BRAND|FAMILY|MODEL)(?::(.+))?$/, async (ctx) => {
     await ctx.answerCallbackQuery();
     if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("You are not authorized to manage taxonomy.");
+      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
       return;
     }
 
@@ -163,7 +163,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     const parentId = ctx.match[2];
     if (category === "BRAND") {
       pendingAdds.set(ctx.from.id, { category });
-      await ctx.reply("Send brand names separated by commas.\nExample: Toyota, Lexus", {
+      await ctx.reply("نام برندها را با کاما جدا کنید.\nمثال: Toyota, Lexus", {
         reply_markup: backButton(ownerMenuCallbacks.taxonomy),
       });
       return;
@@ -173,11 +173,11 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     if (category === "FAMILY" && parentId) {
       const brand = brands.find((option) => option.id === parentId)?.value;
       if (!brand) {
-        await ctx.reply("That brand is no longer available.");
+        await ctx.reply("این برند دیگر در دسترس نیست.");
         return;
       }
       pendingAdds.set(ctx.from.id, { category, brand });
-      await ctx.reply(`Send families for ${brand}, separated by commas.\nExample: Camry, Corolla`, {
+      await ctx.reply(`نام خانواده‌های ${brand} را با کاما جدا کنید.\nمثال: Camry, Corolla`, {
         reply_markup: backButton(ownerMenuCallbacks.taxonomy),
       });
       return;
@@ -188,12 +188,12 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       const family = families.find((option) => option.id === parentId);
       const brand = (family?.metadata?.brand as string | undefined) ?? "";
       if (!family || !brand) {
-        await ctx.reply("That family is no longer available.");
+        await ctx.reply("این خانواده دیگر در دسترس نیست.");
         return;
       }
       pendingAdds.set(ctx.from.id, { category, brand, family: family.value });
       await ctx.reply(
-        `Send models for ${brand} ${family.value}, separated by commas.\nExample: Camry Hybrid, Camry Sport`,
+        `نام مدل‌های ${brand} ${family.value} را با کاما جدا کنید.\nمثال: Camry Hybrid, Camry Sport`,
         { reply_markup: backButton(ownerMenuCallbacks.taxonomy) },
       );
     }
@@ -213,7 +213,7 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
 
     const values = parseValues(ctx.message.text);
     if (!values.length) {
-      await ctx.reply("Please send at least one value, separated by commas.");
+      await ctx.reply("لطفاً حداقل یک مقدار را با کاما جدا کرده و ارسال کنید.");
       return;
     }
 
@@ -228,12 +228,12 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       await addTelegramTaxonomy(ctx.from.id, pending.category, values, metadata);
       pendingAdds.delete(ctx.from.id);
       await ctx.reply(
-        `Added ${values.length} ${pending.category.toLowerCase()} option(s) successfully.`,
+        `${values.length} مورد با موفقیت اضافه شد.`,
         { reply_markup: taxonomyCategoryKeyboard() },
       );
     } catch (error) {
       console.error("Telegram taxonomy update failed:", error);
-      await ctx.reply("Could not add these taxonomy values. Check the backend logs and try again.");
+      await ctx.reply("افزودن این موارد انجام نشد. گزارش‌های backend را بررسی کرده و دوباره تلاش کنید.");
     }
   });
 }
@@ -255,11 +255,11 @@ function addKeyboard(
   parentId?: string,
 ) {
   return new InlineKeyboard()
-    .text("➕ Add", taxonomyCallbacks.add(category, parentId))
+    .text("➕ افزودن", taxonomyCallbacks.add(category, parentId))
     .row()
-    .text("Back", ownerMenuCallbacks.taxonomy);
+    .text("🔙 بازگشت", ownerMenuCallbacks.taxonomy);
 }
 
 function formatOptions(title: string, values: string[]) {
-  return `${title}:\n\n${values.length ? values.map((value) => `• ${value}`).join("\n") : "No entries yet."}`;
+  return `${title}:\n\n${values.length ? values.map((value) => `• ${value}`).join("\n") : "هنوز موردی ثبت نشده است."}`;
 }

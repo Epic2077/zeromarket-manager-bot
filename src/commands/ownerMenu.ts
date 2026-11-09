@@ -15,12 +15,12 @@ export function registerOwnerMenuCommand(bot: Bot) {
 
     const session = await getTelegramSession(ctx.from.id);
     if (!session || session.role !== "OWNER") {
-      await ctx.reply("You are not authorized to open the owner menu.");
+      await ctx.reply("شما اجازه دسترسی به منوی مالک را ندارید.");
       return;
     }
 
     await ctx.reply(
-      "Welcome to the Owner Menu! Here you can manage your bot settings and perform administrative tasks.",
+      "به منوی مالک خوش آمدید!\n\nاز این بخش می‌توانید تنظیمات ربات و امور مدیریتی را انجام دهید.",
       { reply_markup: ownerMenuKeyboard() },
     );
   });
@@ -30,11 +30,11 @@ export function registerOwnerMenuCommand(bot: Bot) {
 
     const session = await getTelegramSession(ctx.from.id);
     if (!session) {
-      await ctx.reply("Please link your Telegram account first.");
+      await ctx.reply("لطفاً ابتدا حساب تلگرام خود را متصل کنید.");
       return;
     }
 
-    await ctx.reply("Main menu", {
+    await ctx.reply("منوی اصلی", {
       reply_markup: mainMenuKeyboard(session.role),
     });
   });

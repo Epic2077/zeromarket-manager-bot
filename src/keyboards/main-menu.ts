@@ -7,33 +7,33 @@ export const menuCallbacks = {
 } as const;
 
 export function websiteButton(): InlineKeyboard {
-  return new InlineKeyboard().url("Open Khodroju", "https://khodroju.ir");
+  return new InlineKeyboard().url("باز کردن خودروجو", "https://khodroju.ir");
 }
 
 export function userMenuButton(): InlineKeyboard {
-  return new InlineKeyboard().text("User Menu", menuCallbacks.user);
+  return new InlineKeyboard().text("👤 منوی کاربر", menuCallbacks.user);
 }
 
 export function ownerMenuButton(): InlineKeyboard {
-  return new InlineKeyboard().text("Owner Menu", menuCallbacks.owner);
+  return new InlineKeyboard().text("👑 منوی مالک", menuCallbacks.owner);
 }
 
 export function backButton(
   callbackData: string = menuCallbacks.start,
 ): InlineKeyboard {
-  return new InlineKeyboard().text("Back", callbackData);
+  return new InlineKeyboard().text("🔙 بازگشت", callbackData);
 }
 
 export function mainMenuKeyboard(
   role: "USER" | "ADMIN" | "OWNER",
 ): InlineKeyboard {
   const keyboard = new InlineKeyboard()
-    .url("Open Khodroju", "https://khodroju.ir")
+    .url("باز کردن خودروجو", "https://khodroju.ir")
     .row()
-    .text("👤 User Menu", menuCallbacks.user);
+    .text("👤 منوی کاربر", menuCallbacks.user);
 
   if (role === "OWNER") {
-    keyboard.text("👑 Owner Menu", menuCallbacks.owner);
+    keyboard.text("👑 منوی مالک", menuCallbacks.owner);
   }
 
   return keyboard;

@@ -15,7 +15,8 @@ export function registerLinkCommand(bot: Bot) {
 
     if (!code) {
       await ctx.reply(
-        "Please provide your linking code. \n\n" + "Example: /link 126345",
+        "لطفاً کد اتصال خود را وارد کنید.\n\n" +
+          "مثال: /link ۱۲۶۳۴۵",
       );
       return;
     }
@@ -44,12 +45,12 @@ export function registerLinkCommand(bot: Bot) {
             }
 
             const welcomeMessage = `✅ ${
-              session?.fullName ?? "Your"
-            } Telegram account has been successfully connected to Khodroju!`;
+              session?.fullName ?? "حساب شما"
+            } با موفقیت به خودروجو متصل شد!`;
 
             await ctx.reply(
               session?.role === "OWNER"
-                ? `👑${welcomeMessage}`
+                ? `👑 ${welcomeMessage}`
                 : welcomeMessage,
               {
                 reply_markup:
@@ -62,20 +63,20 @@ export function registerLinkCommand(bot: Bot) {
           break;
         case "invalid_or_expired":
           await ctx.reply(
-            "❌ Invalid or expired code. \n\n" +
-              "Please generate a new code from your KhodroJu profile.",
+            "❌ کد اتصال نامعتبر یا منقضی شده است.\n\n" +
+              "لطفاً از حساب خودروجوی خود یک کد جدید دریافت کنید.",
           );
           break;
         case "already_connected":
           await ctx.reply(
-            "⚠️ This telegram account or Khodroju account is already connected.",
+            "⚠️ این حساب تلگرام یا حساب خودروجو قبلاً متصل شده است.",
           );
       }
     } catch (error) {
       console.log("Telegram linking failed:", error);
 
       await ctx.reply(
-        "Something went wrong while connecting your account. Please try again.",
+        "هنگام اتصال حساب مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
       );
     }
   });

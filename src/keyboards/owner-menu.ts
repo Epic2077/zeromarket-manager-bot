@@ -16,20 +16,20 @@ export const taxonomyCallbacks = {
 } as const;
 
 export function taxonomyButton(): InlineKeyboard {
-  return new InlineKeyboard().text("📔 Taxonomy", ownerMenuCallbacks.taxonomy);
+  return new InlineKeyboard().text("📔 مدیریت دسته‌بندی‌ها", ownerMenuCallbacks.taxonomy);
 }
 
 export function ownerMenuKeyboard(): InlineKeyboard {
-  return taxonomyButton().row().text("Back", menuCallbacks.start);
+  return taxonomyButton().row().text("🔙 بازگشت", menuCallbacks.start);
 }
 
 export function taxonomyCategoryKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
-    .text("Brands", taxonomyCallbacks.category("BRAND"))
+    .text("🚗 برندها", taxonomyCallbacks.category("BRAND"))
     .row()
-    .text("Families", taxonomyCallbacks.category("FAMILY"))
+    .text("🚘 خانواده‌ها", taxonomyCallbacks.category("FAMILY"))
     .row()
-    .text("Models", taxonomyCallbacks.category("MODEL"))
+    .text("📋 مدل‌ها", taxonomyCallbacks.category("MODEL"))
     .row()
-    .text("Back", ownerMenuCallbacks.taxonomy);
+    .text("🔙 بازگشت", ownerMenuCallbacks.taxonomy);
 }

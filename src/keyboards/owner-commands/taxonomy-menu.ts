@@ -7,5 +7,5 @@ export const taxonomyMenuCallbacks = {
 } as const;
 
 export function brandsButton(): InlineKeyboard {
-  return new InlineKeyboard().text("🚗 Brand", taxonomyMenuCallbacks.brands);
+  return new InlineKeyboard().text("🚗 برندها", taxonomyMenuCallbacks.brands);
 }
