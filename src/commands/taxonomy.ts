@@ -20,7 +20,14 @@ type PendingAdd =
 const pendingAdds = new Map<number, PendingAdd>();
 
 function parseValues(text: string): string[] {
-  return [...new Set(text.split(",").map((value) => value.trim()).filter(Boolean))];
+  return [
+    ...new Set(
+      text
+        .split(/[,،]/)
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  ];
 }
 
 async function ensureOwner(telegramId: number) {
@@ -51,9 +58,15 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     const category = ctx.match[1] as TelegramTaxonomyCategory;
     if (category === "BRAND") {
       const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
-      await ctx.reply(formatOptions("برندهای موجود", brands.map((brand) => brand.value)), {
-        reply_markup: addKeyboard("BRAND"),
-      });
+      await ctx.reply(
+        formatOptions(
+          "برندهای موجود",
+          brands.map((brand) => brand.value),
+        ),
+        {
+          reply_markup: addKeyboard("BRAND"),
+        },
+      );
       return;
     }
 
@@ -69,7 +82,12 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       category === "FAMILY"
         ? "خانواده‌های موجود بر اساس برند گروه‌بندی شده‌اند. برای مشاهده، یک برند را انتخاب کنید:"
         : "مدل‌های موجود بر اساس برند و خانواده گروه‌بندی شده‌اند. یک برند را انتخاب کنید:",
-      { reply_markup: optionKeyboard(brands, category === "FAMILY" ? "family" : "modelBrand") },
+      {
+        reply_markup: optionKeyboard(
+          brands,
+          category === "FAMILY" ? "family" : "modelBrand",
+        ),
+      },
     );
   });
 
@@ -88,9 +106,14 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       return;
     }
 
-    const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", { brand });
+    const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", {
+      brand,
+    });
     await ctx.reply(
-      formatOptions(`خانواده‌های موجود برای ${brand}`, families.map((family) => family.value)),
+      formatOptions(
+        `خانواده‌های موجود برای ${brand}`,
+        families.map((family) => family.value),
+      ),
       { reply_markup: addKeyboard("FAMILY", parentId) },
     );
   });
@@ -110,7 +133,9 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       return;
     }
 
-    const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", { brand });
+    const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY", {
+      brand,
+    });
     if (!families.length) {
       await ctx.reply(`ابتدا یک خانواده برای ${brand} اضافه کنید.`, {
         reply_markup: taxonomyCategoryKeyboard(),
@@ -118,9 +143,12 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
       return;
     }
 
-    await ctx.reply(`خانواده‌های موجود برای ${brand}. برای مشاهده مدل‌ها یکی را انتخاب کنید:`, {
-      reply_markup: optionKeyboard(families, "modelFamily"),
-    });
+    await ctx.reply(
+      `خانواده‌های موجود برای ${brand}. برای مشاهده مدل‌ها یکی را انتخاب کنید:`,
+      {
+        reply_markup: optionKeyboard(families, "modelFamily"),
+      },
+    );
   });
 
   bot.callbackQuery(/^taxonomy:model:family:(.+)$/, async (ctx) => {
@@ -152,52 +180,61 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
     );
   });
 
-  bot.callbackQuery(/^taxonomy:add:(BRAND|FAMILY|MODEL)(?::(.+))?$/, async (ctx) => {
-    await ctx.answerCallbackQuery();
-    if (!(await ensureOwner(ctx.from.id))) {
-      await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
-      return;
-    }
-
-    const category = ctx.match[1] as TelegramTaxonomyCategory;
-    const parentId = ctx.match[2];
-    if (category === "BRAND") {
-      pendingAdds.set(ctx.from.id, { category });
-      await ctx.reply("نام برندها را با کاما جدا کنید.\nمثال: Toyota, Lexus", {
-        reply_markup: backButton(ownerMenuCallbacks.taxonomy),
-      });
-      return;
-    }
-
-    const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
-    if (category === "FAMILY" && parentId) {
-      const brand = brands.find((option) => option.id === parentId)?.value;
-      if (!brand) {
-        await ctx.reply("این برند دیگر در دسترس نیست.");
+  bot.callbackQuery(
+    /^taxonomy:add:(BRAND|FAMILY|MODEL)(?::(.+))?$/,
+    async (ctx) => {
+      await ctx.answerCallbackQuery();
+      if (!(await ensureOwner(ctx.from.id))) {
+        await ctx.reply("شما اجازه مدیریت دسته‌بندی‌ها را ندارید.");
         return;
       }
-      pendingAdds.set(ctx.from.id, { category, brand });
-      await ctx.reply(`نام خانواده‌های ${brand} را با کاما جدا کنید.\nمثال: Camry, Corolla`, {
-        reply_markup: backButton(ownerMenuCallbacks.taxonomy),
-      });
-      return;
-    }
 
-    if (category === "MODEL" && parentId) {
-      const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY");
-      const family = families.find((option) => option.id === parentId);
-      const brand = (family?.metadata?.brand as string | undefined) ?? "";
-      if (!family || !brand) {
-        await ctx.reply("این خانواده دیگر در دسترس نیست.");
+      const category = ctx.match[1] as TelegramTaxonomyCategory;
+      const parentId = ctx.match[2];
+      if (category === "BRAND") {
+        pendingAdds.set(ctx.from.id, { category });
+        await ctx.reply(
+          "نام برندها را با کاما جدا کنید.\nمثال: Toyota, Lexus",
+          {
+            reply_markup: backButton(ownerMenuCallbacks.taxonomy),
+          },
+        );
         return;
       }
-      pendingAdds.set(ctx.from.id, { category, brand, family: family.value });
-      await ctx.reply(
-        `نام مدل‌های ${brand} ${family.value} را با کاما جدا کنید.\nمثال: Camry Hybrid, Camry Sport`,
-        { reply_markup: backButton(ownerMenuCallbacks.taxonomy) },
-      );
-    }
-  });
+
+      const brands = await getTelegramTaxonomy(ctx.from.id, "BRAND");
+      if (category === "FAMILY" && parentId) {
+        const brand = brands.find((option) => option.id === parentId)?.value;
+        if (!brand) {
+          await ctx.reply("این برند دیگر در دسترس نیست.");
+          return;
+        }
+        pendingAdds.set(ctx.from.id, { category, brand });
+        await ctx.reply(
+          `نام خانواده‌های ${brand} را با کاما جدا کنید.\nمثال: Camry, Corolla`,
+          {
+            reply_markup: backButton(ownerMenuCallbacks.taxonomy),
+          },
+        );
+        return;
+      }
+
+      if (category === "MODEL" && parentId) {
+        const families = await getTelegramTaxonomy(ctx.from.id, "FAMILY");
+        const family = families.find((option) => option.id === parentId);
+        const brand = (family?.metadata?.brand as string | undefined) ?? "";
+        if (!family || !brand) {
+          await ctx.reply("این خانواده دیگر در دسترس نیست.");
+          return;
+        }
+        pendingAdds.set(ctx.from.id, { category, brand, family: family.value });
+        await ctx.reply(
+          `نام مدل‌های ${brand} ${family.value} را با کاما جدا کنید.\nمثال: Camry Hybrid, Camry Sport`,
+          { reply_markup: backButton(ownerMenuCallbacks.taxonomy) },
+        );
+      }
+    },
+  );
 
   bot.on("message:text", async (ctx, next) => {
     const pending = pendingAdds.get(ctx.from.id);
@@ -225,15 +262,21 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
             ? { brand: pending.brand }
             : { brand: pending.brand, family: pending.family };
 
-      await addTelegramTaxonomy(ctx.from.id, pending.category, values, metadata);
-      pendingAdds.delete(ctx.from.id);
-      await ctx.reply(
-        `${values.length} مورد با موفقیت اضافه شد.`,
-        { reply_markup: taxonomyCategoryKeyboard() },
+      await addTelegramTaxonomy(
+        ctx.from.id,
+        pending.category,
+        values,
+        metadata,
       );
+      pendingAdds.delete(ctx.from.id);
+      await ctx.reply(`${values.length} مورد با موفقیت اضافه شد.`, {
+        reply_markup: taxonomyCategoryKeyboard(),
+      });
     } catch (error) {
       console.error("Telegram taxonomy update failed:", error);
-      await ctx.reply("افزودن این موارد انجام نشد. گزارش‌های backend را بررسی کرده و دوباره تلاش کنید.");
+      await ctx.reply(
+        "افزودن این موارد انجام نشد. گزارش‌های backend را بررسی کرده و دوباره تلاش کنید.",
+      );
     }
   });
 }
