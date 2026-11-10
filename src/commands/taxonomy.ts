@@ -258,14 +258,64 @@ export function registerTaxonomyMenuCommand(bot: Bot) {
             ? { brand: pending.brand }
             : { brand: pending.brand, family: pending.family };
 
-      await addTelegramTaxonomy(
+      const existing = await getTelegramTaxonomy(
         ctx.from.id,
         pending.category,
-        values,
-        metadata,
+        pending.category === "BRAND"
+          ? {}
+          : pending.category === "FAMILY"
+            ? { brand: pending.brand }
+            : { brand: pending.brand, family: pending.family },
       );
+      const existingValues = new Set(
+        existing.map((option) => option.value.trim().toLocaleLowerCase()),
+      );
+      const successful: string[] = [];
+      const duplicates: string[] = [];
+      const failed: string[] = [];
+
+      for (const value of values) {
+        if (existingValues.has(value.toLocaleLowerCase())) {
+          duplicates.push(value);
+          continue;
+        }
+
+        try {
+          await addTelegramTaxonomy(
+            ctx.from.id,
+            pending.category,
+            [value],
+            metadata,
+          );
+          successful.push(value);
+        } catch (error) {
+          console.error(`Could not add taxonomy "${value}":`, error);
+          failed.push(value);
+        }
+      }
+
       pendingAdds.delete(ctx.from.id);
-      await ctx.reply(`${values.length} مورد با موفقیت اضافه شد.`, {
+      const result = [
+        successful.length
+          ? `✅ با موفقیت اضافه شد:\n${successful
+              .map((value) => `• ${value}`)
+              .join("\n")}`
+          : "",
+        duplicates.length
+          ? `⚠️ تکراری بود و اضافه نشد:\n${duplicates
+              .map((value) => `• ${value}`)
+              .join("\n")}`
+          : "",
+        failed.length
+          ? `❌ به دلیل خطا اضافه نشد:\n${failed
+              .map((value) => `• ${value}`)
+              .join("\n")}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+
+      await ctx.reply(result || "هیچ مقداری اضافه نشد.", {
         reply_markup: taxonomyCategoryKeyboard(),
       });
     } catch (error) {
