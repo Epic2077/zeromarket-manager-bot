@@ -11,6 +11,7 @@ import {
   taxonomyCategoryKeyboard,
 } from "../keyboards/owner-menu.js";
 import { backButton } from "../keyboards/main-menu.js";
+import { ensureOwner, formatOptions } from "../middleware/utils.js";
 
 type PendingAdd =
   | { category: "BRAND" }
@@ -28,11 +29,6 @@ function parseValues(text: string): string[] {
         .filter(Boolean),
     ),
   ];
-}
-
-async function ensureOwner(telegramId: number) {
-  const session = await getTelegramSession(telegramId);
-  return session?.role === "OWNER" && session.status === "ACTIVE";
 }
 
 export function registerTaxonomyMenuCommand(bot: Bot) {
@@ -301,8 +297,4 @@ function addKeyboard(
     .text("➕ افزودن", taxonomyCallbacks.add(category, parentId))
     .row()
     .text("🔙 بازگشت", ownerMenuCallbacks.taxonomy);
-}
-
-function formatOptions(title: string, values: string[]) {
-  return `${title}:\n\n${values.length ? values.map((value) => `• ${value}`).join("\n") : "هنوز موردی ثبت نشده است."}`;
 }

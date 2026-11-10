@@ -30,6 +30,16 @@ export interface TelegramTaxonomyOption {
   metadata: Record<string, unknown> | null;
 }
 
+export interface TelegramBotUser {
+  id: string | number;
+  chat_id: number | string;
+  first_name: string | null;
+  last_name: string | null;
+  username?: string | null;
+  last_active?: string | null;
+  [key: string]: unknown;
+}
+
 const API_BASE_URL = process.env.API_BASE_URL;
 const BOT_SERVICE_TOKEN = process.env.BOT_SERVICE_TOKEN;
 
@@ -189,4 +199,37 @@ export async function addTelegramTaxonomy(
   });
   const data = (await response.json()) as { options: TelegramTaxonomyOption[] };
   return data.options;
+}
+
+export async function getTelegramUsers(filters: {
+  fullname?: string;
+  chatId?: string;
+} = {}): Promise<TelegramBotUser[]> {
+  if (!API_BASE_URL || !BOT_SERVICE_TOKEN) {
+    throw new Error("Backend configuration is missing.");
+  }
+
+  const params = new URLSearchParams();
+  if (filters.fullname) params.set("fullname", filters.fullname);
+  if (filters.chatId) params.set("chatId", filters.chatId);
+
+  const query = params.toString();
+  const response = await fetch(
+    `${API_BASE_URL}/api/telegram/users${query ? `?${query}` : ""}`,
+    {
+      headers: {
+        Authorization: `Bearer ${BOT_SERVICE_TOKEN}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      `Backend returned ${response.status}${details ? `: ${details}` : ""}`,
+    );
+  }
+
+  const data = (await response.json()) as { users?: TelegramBotUser[] };
+  return data.users ?? [];
 }

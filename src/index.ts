@@ -3,12 +3,14 @@ import { registerLinkCommand } from "./commands/link.js";
 import { registerOwnerMenuCommand } from "./commands/ownerMenu.js";
 import { registerStartCommand } from "./commands/start.js";
 import { registerTaxonomyMenuCommand } from "./commands/taxonomy.js";
+import { registerUserMenuCommand } from "./commands/users.js";
 
 console.log("[startup] Registering bot commands...");
 registerStartCommand(bot);
 registerLinkCommand(bot);
 registerOwnerMenuCommand(bot);
 registerTaxonomyMenuCommand(bot);
+registerUserMenuCommand(bot);
 console.log("[startup] Bot commands registered.");
 
 bot.catch((error) => {
